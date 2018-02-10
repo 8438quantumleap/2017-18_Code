@@ -63,7 +63,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
 
-@Autonomous(name="SouthWestJewelAutonomous(BlueRP)", group="Linear Opmode")
+
+@Autonomous(name="BlueSouth", group="Linear Opmode")
 public class SouthWestJewelTest extends LinearOpMode {
 
     // Declare OpMode members.
@@ -93,6 +94,7 @@ public class SouthWestJewelTest extends LinearOpMode {
 
     /** The colorSensor field will contain a reference to our color sensor hardware object */
     ColorSensor colorSensor;
+    ColorSensor colorSensorB;
 
     @Override
     public void runOpMode() {
@@ -108,6 +110,7 @@ public class SouthWestJewelTest extends LinearOpMode {
         final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
         jewel = hardwareMap.get(Servo.class, "jewel");
         colorSensor = hardwareMap.get(ColorSensor.class, "color");
+        colorSensorB = hardwareMap.get(ColorSensor.class, "colorB");
         tilt  = hardwareMap.get(DcMotor.class, "tilt");
         up  = hardwareMap.get(DcMotor.class, "up");
         pinch  = hardwareMap.get(DcMotor.class, "pinch");
@@ -147,24 +150,28 @@ public class SouthWestJewelTest extends LinearOpMode {
             colorSensor.enableLed(bLedOn);
 
             //Arm Code
-            MoveLeft(4);
-            sleep(250);
-            MoveRight(5.5);
-            sleep(250);
-            ColorSensorJewelArm();
-            sleep(250);
-            MoveRight(3);
-            sleep(250);
-            MoveBackward(7);
+            ColorSensorJewelArm2("Blue");
             sleep(250);
             VuMarkImageDetector();
             sleep(250);
             //Driving Code
-            MoveForward(27);
+            MoveForward(28, 0.25);
             sleep(250);
-            TurnLeft(88);
+            TurnLeft(92, 0.3);
             sleep(250);
-            MoveForward(10);
+            MoveForward(16, 0.25);
+            sleep(250);
+            pinch.setPower(1);
+            sleep(750);
+            pinch.setPower(0);
+            sleep(250);
+            MoveBackward(5.55, 0.3);
+            sleep(250);
+            pinch.setPower(1);
+            sleep(750);
+            pinch.setPower(0);
+            sleep(250);
+            MoveBackward(5.55, 0.3);
             sleep(250);
 
             active = false;
@@ -179,8 +186,8 @@ public class SouthWestJewelTest extends LinearOpMode {
 
 
     }
-    public void MoveForward(double inches) {
-        double Power = 0.25;
+    public void MoveForward(double inches, double speed) {
+        double Power = speed;
         long time = (long)(inches * 65);//(semi precise)
         frontLeftDrive.setPower(Power);
         frontRightDrive.setPower(Power);
@@ -195,25 +202,8 @@ public class SouthWestJewelTest extends LinearOpMode {
         backRightDrive.setPower(0);
 
     }
-    public void MoveForwardEncoders(int inches){
-        double Power = 0.25;
-        int flposition = frontLeftDrive.getCurrentPosition();
-        int frposition = frontLeftDrive.getCurrentPosition();
-        int blposition = frontLeftDrive.getCurrentPosition();
-        int brposition = frontLeftDrive.getCurrentPosition();
-
-        frontLeftDrive.setTargetPosition(flposition + inches);
-        frontRightDrive.setTargetPosition(frposition + inches);
-        backLeftDrive.setTargetPosition(blposition + inches);
-        backRightDrive.setTargetPosition(brposition + inches);
-
-        frontLeftDrive.setPower(Power);
-        frontRightDrive.setPower(Power);
-        backLeftDrive.setPower(Power);
-        backRightDrive.setPower(Power);
-    }
-    public void MoveBackward(double inches) {
-        double Power = 0.25;
+    public void MoveBackward(double inches, double speed) {
+        double Power = speed;
         long time = (long)(inches * 65);//(semi precise)
         frontLeftDrive.setPower(Power * -1);
         frontRightDrive.setPower(Power * -1);
@@ -228,8 +218,8 @@ public class SouthWestJewelTest extends LinearOpMode {
         backRightDrive.setPower(0);
 
     }
-    public void TurnLeft(double degrees) {
-        double Power = 0.25;
+    public void TurnLeft(double degrees, double speed) {
+        double Power = speed;
         long time = (long)(degrees * 14.9);//(precise)
         frontLeftDrive.setPower(Power * -1);
         frontRightDrive.setPower(Power);
@@ -243,8 +233,8 @@ public class SouthWestJewelTest extends LinearOpMode {
         backLeftDrive.setPower(0);
         backRightDrive.setPower(0);
     }
-    public void TurnRight(double degrees) {
-        double Power = 0.25;
+    public void TurnRight(double degrees, double speed) {
+        double Power = speed;
         long time = (long)(degrees * 14.9);//(precise)
         frontLeftDrive.setPower(Power);
         frontRightDrive.setPower(Power * -1);
@@ -258,9 +248,9 @@ public class SouthWestJewelTest extends LinearOpMode {
         backLeftDrive.setPower(0);
         backRightDrive.setPower(0);
     }
-    public void MoveLeft(double inches) {
-        double LeftPower = 0.55;
-        double RightPower = 0.55;
+    public void MoveLeft(double inches, double speed) {
+        double LeftPower = speed;
+        double RightPower = speed;
         long time = (long)(inches * 85);//NOT THE REAL VALUE (imprecise)
         frontLeftDrive.setPower(LeftPower * -1);
         frontRightDrive.setPower(RightPower);
@@ -274,9 +264,9 @@ public class SouthWestJewelTest extends LinearOpMode {
         backLeftDrive.setPower(0);
         backRightDrive.setPower(0);
     }
-    public void MoveRight(double inches) {
-        double LeftPower = 0.55;
-        double RightPower = 0.55;
+    public void MoveRight(double inches, double speed) {
+        double LeftPower = speed;
+        double RightPower = speed;
         long time = (long) (inches * 85);//NOT THE REAL VALUE (imprecise)
         frontLeftDrive.setPower(LeftPower);
         frontRightDrive.setPower(RightPower * -1);
@@ -311,24 +301,24 @@ public class SouthWestJewelTest extends LinearOpMode {
             detectBlue = true;
         } else detectNothing = true;
         sleep(1);
-        if (detectBlue){
-            TurnLeft(20);
-            sleep(500);
-            jewel.setPosition(0);
-            TurnRight(20);
-        }
         if (detectRed){
-            TurnRight(20);
+            TurnLeft(20, 0.25);
             sleep(500);
             jewel.setPosition(0);
-            TurnLeft(20);
+            TurnRight(20, 0.25);
+        }
+        if (detectBlue){
+            TurnRight(20, 0.25);
+            sleep(500);
+            jewel.setPosition(0);
+            TurnLeft(20, 0.25);
         }
         else sleep(1);
         sleep(500);
         jewel.setPosition(0);
         sleep(250);
         if (detectNothing){
-            MoveForward(2);
+            MoveForward(2, 0.25);
             jewel.setPosition(0.582);
             sleep(250);
             if (colorSensor.blue() < colorSensor.red() && colorSensor.red() > 1) {
@@ -337,17 +327,17 @@ public class SouthWestJewelTest extends LinearOpMode {
                 detectBlue = true;
             } else detectNothing = true;
             sleep(1);
-            if (detectBlue){
-                TurnLeft(20);
-                sleep(500);
-                jewel.setPosition(0);
-                TurnRight(20);
-            }
             if (detectRed){
-                TurnRight(20);
+                TurnLeft(20, 0.25);
                 sleep(500);
                 jewel.setPosition(0);
-                TurnLeft(20);
+                TurnRight(20, 0.25);
+            }
+            if (detectBlue){
+                TurnRight(20, 0.25);
+                sleep(500);
+                jewel.setPosition(0);
+                TurnLeft(20, 0.25);
             }
             jewel.setPosition(0.582);
             sleep(250);
@@ -358,11 +348,89 @@ public class SouthWestJewelTest extends LinearOpMode {
         sleep(500);
 
     }
-    public void VuMarkImageDetector() {
+    public void ColorSensorJewelArm2(String sideColor) {
+        boolean color2 = true;
+        String detectColor = "StartingValue";
+        String detectColor2 = "StartingValue";
+        int loopColorCount = 0;
+        jewel.setPosition(0.85);
+        sleep(400);
+        colorSensor.enableLed(true);
+        sleep(500);
+        while (loopColorCount < 5) {
+            if (color2){
+                if (colorSensorB.blue() < colorSensorB.red() && colorSensorB.red() > 1){
+                    detectColor2 = "Red";
+                }
+                else if (colorSensorB.red() < colorSensorB.blue() && colorSensorB.blue() > 1) {
+                    detectColor2 = "Blue";
+                }
+                else detectColor2 = "Nothing";
+            }
+            else sleep(1);
+            if (colorSensor.blue() < colorSensor.red() && colorSensor.red() > 1) {
+                detectColor = "Red";
+            } else if (colorSensor.red() < colorSensor.blue() && colorSensor.blue() > 1) {
+                detectColor = "Blue";
+            } else detectColor = "Nothing";
+
+            //End Detection
+            sleep(10);
+            if (detectColor.equals("Red") || detectColor2.equals("Blue")){
+                if(sideColor.equals("Red")){
+                    MoveBackward(3.25, 0.2);
+                    sleep(250);
+                    jewel.setPosition(0);
+                    sleep(250);
+                    MoveForward(3.25, 0.25);
+                }
+                else if(sideColor.equals("Blue")){
+                    MoveForward(3.25, 0.25);
+                    sleep(250);
+                    jewel.setPosition(0);
+                    sleep(250);
+                    MoveBackward(3.25, 0.25);
+                }
+                else jewel.setPosition(0);
+                loopColorCount = 6;
+            }
+            if (detectColor.equals("Blue") || detectColor2.equals("Red")){
+                if(sideColor.equals("Blue")){
+                    MoveBackward(3.25, 0.2);
+                    sleep(250);
+                    jewel.setPosition(0);
+                    sleep(250);
+                    MoveForward(3.25, 0.25);
+                }
+                else if(sideColor.equals("Red")){
+                    MoveForward(3.25, 0.25);
+                    sleep(250);
+                    jewel.setPosition(0);
+                    sleep(250);
+                    MoveBackward(3.25, 0.25);
+                }
+                else jewel.setPosition(0);
+                loopColorCount = 6;
+            }
+            else if (detectColor.equals("Nothing") && detectColor2.equals("Nothing")) {
+                MoveForward(1.1,0.15);
+                sleep(250);
+            }
+            else sleep(1);
+            sleep(250);
+            loopColorCount += 1;
+        }
+        jewel.setPosition(0.05);
+        detectColor = "EndingValue";
+        sleep(250);
+
+
+    }
+    public String VuMarkImageDetector() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.vuforiaLicenseKey = "AdCD63D/////AAAAGThVVvAi9UMXrbAu6IouvThcGKupmnakuvoWHZtIOH78mz1zQ+JAsVe7NqsffG4WpT1W2DvJQ8VsniObDD0N2W6y7WeavS8kseppMEdzy22UdVDXzvfPfoK/l62C3x0esCe7xeM8IOwZW8GtJX6cOalAR5HgYuS3VuN8eE/sPD9RmYwwRkhkGOntMOlWxc8yCIwTnn3nYBGEsOFEpz2+R+YboSIX2jWL1xs6Z7YqnA2rAAX489xbIoCsTWZEzQlPfbXk7frpTZpT7Nq3kh1PeGcRg536UTWGJ69fSRr8PIHJdycexY7uPhmfhEZBy3/pFOZ5lNhnqBuekll8PAhjftnvXeyRiWHugSEjVNUzdWhY";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;//We indicate which camera on the RC that we wish to use.
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;//We indicate which camera on the RC that we wish to use.
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
@@ -372,6 +440,7 @@ public class SouthWestJewelTest extends LinearOpMode {
         relicTrackables.activate();
         boolean imgScan = true;
         int loopCount = 0;
+        String picto = "none";
 
         while (imgScan && loopCount >= 100) {
 
@@ -412,16 +481,22 @@ public class SouthWestJewelTest extends LinearOpMode {
                     double rZ = rot.thirdAngle;
                 }
                 if (vuMark == RelicRecoveryVuMark.LEFT){
-                    MoveForward(2);
+                    picto = "LEFT";
+                    telemetry.addData("VuMark", "Left");
                     imgScan = false;
+                    return picto;
                 }
                 if (vuMark == RelicRecoveryVuMark.CENTER){
-                    MoveForward(7);
+                    picto = "CENTER";
+                    telemetry.addData("VuMark", "Center");
                     imgScan = false;
+                    return picto;
                 }
                 if (vuMark == RelicRecoveryVuMark.RIGHT){
-                    MoveForward(12);
+                    picto = "RIGHT";
+                    telemetry.addData("VuMark", "Right");
                     imgScan = false;
+                    return picto;
                 }
                 else sleep(100);
 
@@ -431,6 +506,23 @@ public class SouthWestJewelTest extends LinearOpMode {
 
             telemetry.update();
             loopCount = loopCount + 1;
+        }
+        return picto;
+    }
+    public void ImgDistDec(String pictod){
+        if (pictod.equals("LEFT")){
+            MoveLeft(6, 0.25);
+            MoveForward(2, 0.25);
+        }
+        if (pictod.equals("CENTER")){
+            MoveForward(2, 0.25);
+        }
+        if (pictod.equals("RIGHT")){
+            MoveRight(6, 0.25);
+        }
+        else{
+            telemetry.addData("Image Not Found", pictod);
+            telemetry.update();
         }
     }
     String format (OpenGLMatrix transformationMatrix){
